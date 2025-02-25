@@ -1,4 +1,4 @@
-use std::{fmt::{self, write}, str::FromStr};
+use std::{fmt::{self}, str::FromStr};
 
 #[derive(Debug, PartialEq)]
 pub struct ChunkType {
