@@ -1,6 +1,6 @@
 use std::{fmt::{self}, str::FromStr};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ChunkType {
     chunk_type: [u8; 4],
 }
