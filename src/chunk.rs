@@ -5,7 +5,7 @@ use crc32fast::Hasher;
 use crate::chunk_types::ChunkType;
 
 #[derive(Debug, Clone)]
-struct Chunk {
+pub struct Chunk {
     length: u32,
     chunk_type: ChunkType,
     data: Vec<u8>,
@@ -13,7 +13,7 @@ struct Chunk {
 }
 
 #[derive(Debug)]
-enum ChunkError {
+pub enum ChunkError {
     InvalidArgument,
     InvalidLengthSize,
     InvalidCrc,
@@ -71,7 +71,7 @@ impl fmt::Display for Chunk {
 
 impl Chunk {
 
-    fn new(chunk_type: ChunkType, data: Vec<u8>) -> Self {
+    pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Self {
         let length = data.len() as u32;
         let crc = calculate_crc(&chunk_type, data.clone());
         Self {
@@ -82,23 +82,23 @@ impl Chunk {
         }
     }
 
-    fn length(&self) -> u32 {
+    pub fn length(&self) -> u32 {
         self.length
     }
 
-    fn crc(&self) -> u32 {
+    pub fn crc(&self) -> u32 {
         self.crc
     }
 
-    fn data(&self) -> Vec<u8> {
+    pub fn data(&self) -> Vec<u8> {
         self.data.clone()
     }
 
-    fn chunk_type(&self) -> &ChunkType {
+    pub fn chunk_type(&self) -> &ChunkType {
         &self.chunk_type
     }
 
-    fn data_as_string(&self) -> Result<String, ChunkError> {
+    pub fn data_as_string(&self) -> Result<String, ChunkError> {
         if !self.data.iter().any(|&e| ChunkType::is_byte_valid(e)) {
             return Err(ChunkError::NotUTF8);
         }
@@ -108,7 +108,7 @@ impl Chunk {
         Ok(result)
     }
 
-    fn as_bytes(&self) -> Vec<u8> {
+    pub fn as_bytes(&self) -> Vec<u8> {
         let mut result: Vec<u8> = Vec::new();
         result.append(&mut self.length.to_be_bytes().to_vec());
         result.append(&mut self.chunk_type.bytes().to_vec());
