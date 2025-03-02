@@ -4,7 +4,7 @@ use crc32fast::Hasher;
 
 use crate::chunk_types::ChunkType;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Chunk {
     length: u32,
     chunk_type: ChunkType,

@@ -1,4 +1,6 @@
-use crate::chunk::Chunk;
+use std::{fmt::{self, Display}, str::FromStr, thread::current};
+
+use crate::{chunk::Chunk, chunk_types::ChunkType};
 
 #[derive(Debug)]
 pub struct Png {
@@ -10,6 +12,7 @@ pub struct Png {
 pub enum PngErrors {
     InvalidHeader,
     InvalidArgument,
+    ChunkNotFound,
 }
 
 impl TryFrom<&[u8]> for  Png {
@@ -44,6 +47,13 @@ impl TryFrom<&[u8]> for  Png {
     }
 }
 
+impl fmt::Display for Png {
+
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.as_bytes())
+    }
+}
+
 impl Png {
     pub const STANDARD_HEADER: &[u8] = &[137, 80, 78, 71, 13, 10, 26, 10];
 
@@ -63,7 +73,40 @@ impl Png {
         &self.header
     }
 
+    pub fn append_chunk(&mut self, chunk: Chunk) {
+        self.chunks.push(chunk);
+    }
 
+    pub fn remove_first_chunk(&mut self, chunk_type: &str) -> Result<Chunk, PngErrors> {
+        let chunk = self.chunk_by_type(chunk_type);
+        if chunk == None {
+            return Err(PngErrors::ChunkNotFound);
+        }
+
+        let tmp = chunk.unwrap();
+        if let Some(index) = self.chunks.iter().position(|e| *e == tmp) {
+            self.chunks.remove(index);
+        }
+        Ok(tmp)
+    }
+
+    pub fn chunk_by_type(&self, chunk_type: &str) -> Option<Chunk> {
+        for value in &self.chunks {
+            if value.chunk_type() == &ChunkType::from_str(chunk_type).unwrap() {
+                return Some(value.clone());
+            }
+        }
+        return None;
+    }
+
+    pub fn as_bytes(&self) -> Vec<u8> {
+        let mut result: Vec<u8> = Vec::new();
+        result.append(&mut self.header.to_vec());
+        for value in &self.chunks {
+            result.append(&mut value.as_bytes());
+        }
+        result
+    }
 }
 
 fn check(arr1: &[u8; 8], arr2: &[u8]) -> bool {
