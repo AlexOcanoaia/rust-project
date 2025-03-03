@@ -1,4 +1,4 @@
-use std::{fmt::{self, Display}, str::FromStr, thread::current};
+use std::{fmt::{self}, fs::File, io::Read, path::PathBuf, str::FromStr};
 
 use crate::{chunk::Chunk, chunk_types::ChunkType};
 
@@ -105,6 +105,17 @@ impl Png {
             result.append(&mut value.as_bytes());
         }
         result
+    }
+
+    pub fn from_file(file_path: PathBuf) -> Result<Self, PngErrors> {
+        let mut file = File::open(file_path).unwrap();
+
+        let mut data:  Vec<u8> = Vec::new();
+        file.read_to_end(&mut data).unwrap();
+        
+        let tmp: &[u8] = &data;
+        let png = Png::try_from(tmp);
+        png
     }
 }
 

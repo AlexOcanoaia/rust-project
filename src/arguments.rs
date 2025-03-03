@@ -6,7 +6,7 @@ use clap::{Parser, Subcommand};
 #[command(name = "pngapp", about = "Encoder for PNG file", version = "1.0")]
 pub struct CliCommands {
     #[command(subcommand)]
-    command: Commands,
+    pub command: Commands,
 }
 
 #[derive(Subcommand)]
@@ -33,7 +33,7 @@ pub struct DecodeArguments {
 
 #[derive(Parser)]
 pub struct PrintArguments {
-    file_path: PathBuf,
+    pub file_path: PathBuf,
 }
 
 #[derive(Parser)]
