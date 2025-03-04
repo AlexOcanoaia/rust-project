@@ -2,7 +2,7 @@ use std::{fmt::{self}, fs::File, io::Read, path::PathBuf, str::FromStr};
 
 use crate::{chunk::Chunk, chunk_types::ChunkType};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Png {
     header: [u8; 8],
     chunks: Vec<Chunk>,
@@ -31,7 +31,7 @@ impl TryFrom<&[u8]> for  Png {
 
         let mut chunks: Vec<Chunk> = Vec::new();
         let mut count = 0;
-        while let Some(value) = second.get(count) {
+        while let Some(_value) = second.get(count) {
             let tmp_array = &second[count..(count + 4)];
             let tmp_value = u32::from_be_bytes(tmp_array.try_into().expect("Length should be 4"));
             let length = 12 + tmp_value;

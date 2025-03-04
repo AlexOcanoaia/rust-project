@@ -19,16 +19,16 @@ pub enum Commands {
 
 #[derive(Parser)]
 pub struct EncodeArguments {
-    file_path: PathBuf,
-    chunk_type: String,
-    message: String,
-    output_file: PathBuf,
+    pub file_path: PathBuf,
+    pub chunk_type: String,
+    pub message: String,
+    pub output_file: PathBuf,
 }
 
 #[derive(Parser)]
 pub struct DecodeArguments {
-    file_path: PathBuf,
-    chunk_type: String,
+    pub file_path: PathBuf,
+    pub chunk_type: String,
 }
 
 #[derive(Parser)]
@@ -38,7 +38,7 @@ pub struct PrintArguments {
 
 #[derive(Parser)]
 pub struct RemoveArguments {
-    file_path: PathBuf,
-    chunk_type: String,
+    pub file_path: PathBuf,
+    pub chunk_type: String,
 }
 

@@ -1,6 +1,6 @@
 use arguments::{CliCommands, Commands};
 use clap::Parser;
-use commands::print;
+use commands::{print, remove};
 
 mod chunk_types;
 mod chunk;
@@ -8,19 +8,28 @@ mod png;
 mod arguments;
 mod commands;
 
-pub type Error = Box<dyn std::error::Error>;
-pub type Result<T> = std::result::Result<T, Error>;
-
-
 fn main() {
-    println!("Hello, world!");
-
     let cli = CliCommands::parse();
 
     match cli.command {
         Commands::Print(args) => {
-            print(args);
+            match print(args) {
+                Err(_e) => {
+                    println!("The PNG file is invalid");
+                }
+                Ok(_) => {}
+            }
         }
-        _ => {}
+        Commands::Remove(args) => {
+            match remove(args) {
+                Err(_e) => {
+                    println!("The PNG file is invalid");
+                }
+                Ok(_) => {}
+            }
+        }
+        _ => {
+            println!("Another command");
+        }
     }
 }
