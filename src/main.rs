@@ -1,6 +1,6 @@
 use arguments::{CliCommands, Commands};
 use clap::Parser;
-use commands::{print, remove};
+use commands::{encode, print, remove, CommandsError};
 
 mod chunk_types;
 mod chunk;
@@ -28,8 +28,24 @@ fn main() {
                 Ok(_) => {}
             }
         }
+        Commands::Encode(args) => {
+            match encode(args) {
+                Err(e) => {
+                    if e == CommandsError::InvalidPNG {
+                        println!("The PNG file is invalid");
+                    }
+                    if e == CommandsError::InvalidChunk {
+                        println!("The chunk type is invalid");
+                    }
+                }
+                Ok(_) => {}
+            }
+        }
+        Commands::Decode(_args) => {
+
+        }
         _ => {
-            println!("Another command");
+            println!("Wrong command");
         }
     }
 }

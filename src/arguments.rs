@@ -22,7 +22,6 @@ pub struct EncodeArguments {
     pub file_path: PathBuf,
     pub chunk_type: String,
     pub message: String,
-    pub output_file: PathBuf,
 }
 
 #[derive(Parser)]
