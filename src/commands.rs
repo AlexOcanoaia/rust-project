@@ -20,13 +20,32 @@ pub fn encode(args: EncodeArguments) -> Result<(), CommandsError> {
 
     let chunk = Chunk::new(chunk_type, args.message.as_bytes().to_vec());
 
-
     png.append_chunk(chunk);
     Ok(())
 }
 
-pub fn decode(args: DecodeArguments) -> Result<(), ()> {
-    todo!()
+pub fn decode(args: DecodeArguments) -> Result<(), CommandsError> {
+    let png = open_png(args.file_path);
+    if !check_chunks(png.clone()) {
+        return Err(CommandsError::InvalidPNG);
+    }
+    let chunk_type = ChunkType::from_str(&args.chunk_type).unwrap();
+    if !chunk_type.is_valid() {
+        return Err(CommandsError::InvalidChunk);
+    }
+
+    let tmp = png.chunk_by_type(&args.chunk_type);
+    match tmp {
+        Some(value) => {
+            let aux = value.data();
+            let message = String::from_utf8_lossy(&aux);
+            println!("The message decoded is {}", message);
+        }
+        None => {
+            return Err(CommandsError::InvalidChunk);
+        }
+    }
+    Ok(())
 }
 
 pub fn print(args: PrintArguments) -> Result<(), CommandsError> {

@@ -1,6 +1,6 @@
 use arguments::{CliCommands, Commands};
 use clap::Parser;
-use commands::{encode, print, remove, CommandsError};
+use commands::{decode, encode, print, remove, CommandsError};
 
 mod chunk_types;
 mod chunk;
@@ -14,16 +14,16 @@ fn main() {
     match cli.command {
         Commands::Print(args) => {
             match print(args) {
-                Err(_e) => {
-                    println!("The PNG file is invalid");
+                Err(e) => {
+                    print_errors(e);
                 }
                 Ok(_) => {}
             }
         }
         Commands::Remove(args) => {
             match remove(args) {
-                Err(_e) => {
-                    println!("The PNG file is invalid");
+                Err(e) => {
+                    print_errors(e);
                 }
                 Ok(_) => {}
             }
@@ -31,21 +31,27 @@ fn main() {
         Commands::Encode(args) => {
             match encode(args) {
                 Err(e) => {
-                    if e == CommandsError::InvalidPNG {
-                        println!("The PNG file is invalid");
-                    }
-                    if e == CommandsError::InvalidChunk {
-                        println!("The chunk type is invalid");
-                    }
+                    print_errors(e);
                 }
                 Ok(_) => {}
             }
         }
-        Commands::Decode(_args) => {
+        Commands::Decode(args) => {
+            match decode(args) {
+                Err(e)  => {
+                    print_errors(e);
+                }
+                Ok(_) => {}
+            }
+        }
+    }
+}
 
-        }
-        _ => {
-            println!("Wrong command");
-        }
+fn print_errors(error: CommandsError) {
+    if error == CommandsError::InvalidPNG {
+        println!("The PNG file is invalid");
+    }
+    if error == CommandsError::InvalidChunk {
+        println!("The chunk type is invalid");
     }
 }
