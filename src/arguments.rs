@@ -40,4 +40,3 @@ pub struct RemoveArguments {
     pub file_path: PathBuf,
     pub chunk_type: String,
 }
-

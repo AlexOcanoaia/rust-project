@@ -1,4 +1,4 @@
-use std::{fmt::{self}, fs::File, io::Read, path::PathBuf, str::FromStr};
+use std::{fmt::{self}, fs::File, io::{self, BufWriter, Read, Write}, path::{Path, PathBuf}, str::FromStr};
 
 use crate::{chunk::Chunk, chunk_types::ChunkType};
 
@@ -64,6 +64,24 @@ impl Png {
         }
     }
 
+    pub fn save(&self, file_path: &Path) -> io::Result<()> {
+        let file = File::create(file_path)?;
+        let mut writer = BufWriter::new(file);
+
+        writer.write_all(Png::STANDARD_HEADER)?;
+
+        for chunk in &self.chunks() {
+            self.write_chunk(chunk, &mut writer)?;
+        }
+        Ok(())
+    }
+
+    pub fn write_chunk(&self, chunk: &Chunk, writer: &mut BufWriter<File>) -> io::Result<()> {
+        let bytes = chunk.as_bytes();
+        writer.write_all(&bytes)?;
+        Ok(())
+    }
+
     pub fn chunks(&self) -> Vec<Chunk> {
         self.chunks.clone()
     }
@@ -90,7 +108,7 @@ impl Png {
     }
 
     pub fn chunk_by_type(&self, chunk_type: &str) -> Option<Chunk> {
-        for value in &self.chunks {
+        for value in &self.chunks() {
             if value.chunk_type() == &ChunkType::from_str(chunk_type).unwrap() {
                 return Some(value.clone());
             }
@@ -112,7 +130,7 @@ impl Png {
 
         let mut data:  Vec<u8> = Vec::new();
         file.read_to_end(&mut data).unwrap();
-        
+
         let tmp: &[u8] = &data;
         let png = Png::try_from(tmp);
         png

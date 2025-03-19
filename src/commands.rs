@@ -6,11 +6,12 @@ use crate::{arguments::{DecodeArguments, EncodeArguments, PrintArguments, Remove
 pub enum CommandsError {
     InvalidPNG,
     InvalidChunk,
+    InvalidSave,
 }
 
-pub fn encode(args: EncodeArguments) -> Result<(), CommandsError> {
-    let mut png = open_png(args.file_path);
-    if !check_chunks(png.clone()) {
+pub fn encode(args: EncodeArguments) -> Result<Png, CommandsError> {
+    let mut png = open_png(&args.file_path);
+    if !check_chunks(&png) {
         return Err(CommandsError::InvalidPNG);
     }
     let chunk_type = ChunkType::from_str(&args.chunk_type).unwrap();
@@ -19,14 +20,17 @@ pub fn encode(args: EncodeArguments) -> Result<(), CommandsError> {
     }
 
     let chunk = Chunk::new(chunk_type, args.message.as_bytes().to_vec());
-
     png.append_chunk(chunk);
-    Ok(())
+
+    if let Err(_e) = png.save(&args.file_path) {
+        return Err(CommandsError::InvalidSave);
+    }
+    return Ok(png);
 }
 
 pub fn decode(args: DecodeArguments) -> Result<(), CommandsError> {
-    let png = open_png(args.file_path);
-    if !check_chunks(png.clone()) {
+    let png = open_png(&args.file_path);
+    if !check_chunks(&png) {
         return Err(CommandsError::InvalidPNG);
     }
     let chunk_type = ChunkType::from_str(&args.chunk_type).unwrap();
@@ -35,6 +39,7 @@ pub fn decode(args: DecodeArguments) -> Result<(), CommandsError> {
     }
 
     let tmp = png.chunk_by_type(&args.chunk_type);
+    println!("tmp is {:?}", tmp);
     match tmp {
         Some(value) => {
             let aux = value.data();
@@ -49,8 +54,8 @@ pub fn decode(args: DecodeArguments) -> Result<(), CommandsError> {
 }
 
 pub fn print(args: PrintArguments) -> Result<(), CommandsError> {
-    let png = open_png(args.file_path);
-    if !check_chunks(png.clone()) {
+    let png = open_png(&args.file_path);
+    if !check_chunks(&png) {
         return Err(CommandsError::InvalidPNG);
     }
     println!("{}", png);
@@ -58,8 +63,8 @@ pub fn print(args: PrintArguments) -> Result<(), CommandsError> {
 }
 
 pub fn remove(args: RemoveArguments) -> Result<(), CommandsError> {
-    let mut png = open_png(args.file_path);
-    if !check_chunks(png.clone()) {
+    let mut png = open_png(&args.file_path);
+    if !check_chunks(&png) {
         return Err(CommandsError::InvalidPNG);
     }
 
@@ -71,10 +76,10 @@ pub fn remove(args: RemoveArguments) -> Result<(), CommandsError> {
         }
         Ok(_) => {}
     }
-    Ok(())    
+    Ok(())
 }
 
-fn check_chunks(png: Png) -> bool {
+fn check_chunks(png: &Png) -> bool {
     if png.header() != Png::STANDARD_HEADER {
         return false;
     }
@@ -85,9 +90,8 @@ fn check_chunks(png: Png) -> bool {
     true
 }
 
-fn open_png(file_path: PathBuf) -> Png {
-    let tmp_png = Png::from_file(file_path);
+fn open_png(file_path: &PathBuf) -> Png {
+    let tmp_png = Png::from_file(file_path.to_path_buf());
     let png = tmp_png.unwrap();
     png
 }
-

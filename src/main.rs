@@ -54,4 +54,7 @@ fn print_errors(error: CommandsError) {
     if error == CommandsError::InvalidChunk {
         println!("The chunk type is invalid");
     }
+    if error == CommandsError::InvalidSave {
+        println!("There was a problem with the file");
+    }
 }
